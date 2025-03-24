@@ -7,6 +7,7 @@ from tkinter import messagebox
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from config import *
+from App import app
 
 
 class App(ctk.CTk):
@@ -19,24 +20,28 @@ class App(ctk.CTk):
 
         self.user_var = ctk.StringVar()
         self.password_var = ctk.StringVar()
+        self.bind('<Return>', self.confirm_login)
 
         self.image = ctk.CTkImage(light_image=Image.open(BACKGROUND_IMAGE), size=(WINDOW_WIDTH + 60, WINDOW_HEIGHT + 60))
         self.label = ctk.CTkLabel(self, image=self.image, text='')
         self.label.place(x=0, y=0, relwidth=1, relheight=1)
 
-        User(self, self.user_var)
+        User(self, self.user_var, self.confirm_login)
         Password(self, self.password_var)
-        Button(self, self.print_inputs)
+        Button(self, self.confirm_login)
 
         self.mainloop()
 
-    def print_inputs(self):
+
+    def confirm_login(self, event=None):
         users = db.get_usuarios()
 
         for user in users:
             if self.user_var.get() in user and self.password_var.get() in user:
                 self.user_var.set('')
                 self.password_var.set('')
+                self.destroy()
+                return app.Home()
             else:
                 self.user_var.set('')
                 self.password_var.set('')
@@ -44,7 +49,7 @@ class App(ctk.CTk):
 
 class User(ctk.CTkEntry):
 
-    def __init__(self, parent, user_var):
+    def __init__(self, parent, user_var, command):
         super().__init__(master=parent,
                          textvariable=user_var,
                          fg_color=ENTRY_COLOR,
@@ -60,6 +65,7 @@ class User(ctk.CTkEntry):
                                   text_color=BLACK)
         user_label.place(relx=0.05, rely=0.35)
 
+    
         self.place(relx=0.05, rely=0.43)
 
 
